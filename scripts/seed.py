@@ -12,7 +12,7 @@ import argparse
 from datetime import datetime, timedelta
 import httpx
 
-BASE_URL = "http://localhost:8000/api/v1/transactions"
+BASE_URL = "http://localhost:8000/api/v1/transactions/"
 
 MERCHANTS = [
     # (merchant_name, expected_category, amount_range_INR)
@@ -81,7 +81,7 @@ async def seed(count: int = 200, base_url: str = BASE_URL):
                 "description": f"Seed #{i+1} — {cat}",
             }
             try:
-                r = await client.post(base_url, json=payload)
+                r = await client.post(base_url, json=payload, follow_redirects=True)
                 if r.status_code == 201:
                     d = r.json()
                     flag = " ⚠ ANOMALY" if d.get("is_anomaly") else ""
@@ -102,7 +102,7 @@ async def seed(count: int = 200, base_url: str = BASE_URL):
                 "currency": "INR",
             }
             try:
-                r = await client.post(base_url, json=payload)
+                r = await client.post(base_url, json=payload, follow_redirects=True)
                 d = r.json()
                 print(f"  [ANO] {a['merchant']:<30} ₹{abs(a['amount']):>10,.0f}  ANOMALY INJECTED")
                 ok += 1

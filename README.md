@@ -57,7 +57,3 @@ autoledger/
 | 3 | Cash flow forecasting | Prophet/ARIMA, time series |
 | 4 | React dashboard + WebSocket live feed | React Query, Recharts, WebSockets |
 | 5 | Docker + CI/CD deployment | Docker Compose, GitHub Actions, Render |
-
-
-SCREENSHOTS
-![alt text](image.png)
