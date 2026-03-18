@@ -12,18 +12,29 @@ import AddTransactionModal from "../components/transactions/AddTransactionModal"
 
 export default function Dashboard() {
   const [showAdd, setShowAdd] = useState(false);
+  const [forecastDays, setForecastDays] = useState(30);
   const { liveFeed, wsConnected, startLiveFeed } = useLiveStore();
 
-  // Start WebSocket connection
   useEffect(() => {
     const stop = startLiveFeed();
     return stop;
   }, []);
 
-  const { data: summary } = useQuery({ queryKey: ["summary"], queryFn: fetchSummary, refetchInterval: 30_000 });
+  const { data: summary } = useQuery({
+    queryKey: ["summary"],
+    queryFn: fetchSummary,
+    refetchInterval: 30_000,
+  });
   const { data: pnl = [] } = useQuery({ queryKey: ["pnl"], queryFn: fetchPnL });
-  const { data: forecastData } = useQuery({ queryKey: ["forecast"], queryFn: () => fetchForecast(30) });
-  const { data: txPage } = useQuery({ queryKey: ["transactions"], queryFn: () => fetchTransactions(1, 40), refetchInterval: 15_000 });
+  const { data: forecastData } = useQuery({
+    queryKey: ["forecast", forecastDays],
+    queryFn: () => fetchForecast(forecastDays),
+  });
+  const { data: txPage } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: () => fetchTransactions(1, 50),
+    refetchInterval: 15_000,
+  });
 
   const totalAmount = summary?.total_amount ?? 0;
   const totalFmt =
@@ -31,17 +42,24 @@ export default function Dashboard() {
       ? `${totalAmount >= 0 ? "+" : "-"}₹${(Math.abs(totalAmount) / 100_000).toFixed(1)}L`
       : `${totalAmount >= 0 ? "+" : "-"}₹${(Math.abs(totalAmount) / 1_000).toFixed(0)}k`;
 
-  // Merge live feed with DB transactions, deduplicate
   const liveIds = new Set(liveFeed.map((t) => t.id));
   const merged = [
     ...liveFeed,
     ...(txPage?.items ?? []).filter((t: any) => !liveIds.has(t.id)),
   ];
 
+  // Burn rate = average monthly expenses
+  const expenses = (txPage?.items ?? []).filter((t: any) => t.amount < 0);
+  const totalExpenses = expenses.reduce((s: number, t: any) => s + Math.abs(t.amount), 0);
+  const burnRate = totalExpenses > 0 ? Math.round(totalExpenses / 6) : 0;
+  const burnFmt = burnRate >= 100_000
+    ? `₹${(burnRate / 100_000).toFixed(1)}L/mo`
+    : `₹${(burnRate / 1_000).toFixed(0)}k/mo`;
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
-      {/* Header row */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Overview</h1>
@@ -59,13 +77,18 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* KPI cards — now 4 */}
+      <div className="grid grid-cols-4 gap-4">
         <KpiCard
           label="Net cash flow"
           value={totalFmt}
           sub="All time"
           accent={totalAmount >= 0 ? "success" : "danger"}
+        />
+        <KpiCard
+          label="Burn rate"
+          value={burnFmt}
+          sub="Avg monthly spend"
         />
         <KpiCard
           label="Anomalies flagged"
@@ -86,8 +109,30 @@ export default function Dashboard() {
         <CategoryDonut data={pnl} />
       </div>
 
-      {/* Forecast full width */}
-      <ForecastChart data={forecastData?.forecast ?? []} />
+      {/* Forecast with day selector */}
+      <div className="bg-white rounded-xl border border-gray-100 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-medium text-gray-700">Cash flow forecast</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Shaded band = 80% confidence interval</p>
+          </div>
+          <div className="flex gap-2">
+            {[7, 30, 60, 90].map((d) => (
+              <button
+                key={d}
+                onClick={() => setForecastDays(d)}
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors
+                  ${forecastDays === d
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "text-gray-500 border-gray-200 hover:border-gray-400"}`}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
+        </div>
+        <ForecastChart data={forecastData?.forecast ?? []} />
+      </div>
 
       {/* Feed + Alerts */}
       <div className="grid grid-cols-3 gap-6">

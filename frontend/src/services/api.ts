@@ -4,12 +4,19 @@ const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export const api = axios.create({ baseURL: `${BASE}/api/v1` });
 
+api.interceptors.request.use((config) => {
+  if (config.method === "post" && config.url && !config.url.endsWith("/")) {
+    config.url = config.url + "/";
+  }
+  return config;
+});
+
 // ── Transactions ──────────────────────────────────────────────
 export const fetchTransactions = (page = 1, size = 50) =>
   api.get("/transactions/", { params: { page, size } }).then((r) => r.data);
 
 export const createTransaction = (data: TransactionCreate) =>
-  api.post("/transactions/", data).then((r) => r.data);
+  api.post("/transactions/", data, { maxRedirects: 5 }).then((r) => r.data);
 
 // ── Reports ───────────────────────────────────────────────────
 export const fetchPnL = () => api.get("/reports/pnl").then((r) => r.data);

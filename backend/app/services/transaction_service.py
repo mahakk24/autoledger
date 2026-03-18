@@ -9,10 +9,11 @@ from app.services.alert_service import evaluate_alerts
 
 async def ingest_transaction(db: AsyncSession, data: TransactionCreate) -> Transaction:
     category, confidence = classify_transaction(data.merchant, data.description or "")
+    naive_date = data.date.replace(tzinfo=None)
     is_anomaly, score, reason = detect_anomaly(data.amount, data.date)
 
     txn = Transaction(
-        date=data.date,
+        date=naive_date,
         merchant=data.merchant,
         amount=data.amount,
         currency=data.currency,
