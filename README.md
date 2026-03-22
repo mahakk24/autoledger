@@ -147,6 +147,4 @@ autoledger/
 
 ---
 
-## Resume Line
 
-> *Built AutoLedger — real-time bookkeeping automation for startups. ML pipeline auto-classifies transactions into 9 categories with explainability, detects anomalies using Isolation Forest, forecasts 30-day cash flow, and calculates runway with live scenario modelling. FastAPI + React + Docker. [github.com/mahakk24/autoledger](https://github.com/mahakk24/autoledger)*
