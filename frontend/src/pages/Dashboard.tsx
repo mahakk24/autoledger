@@ -9,6 +9,7 @@ import ForecastChart from "../components/forecast/ForecastChart";
 import TransactionFeed from "../components/transactions/TransactionFeed";
 import AlertsPanel from "../components/alerts/AlertsPanel";
 import AddTransactionModal from "../components/transactions/AddTransactionModal";
+import RunwayCard from "../components/forecast/RunwayCard";
 
 export default function Dashboard() {
   const [showAdd, setShowAdd] = useState(false);
@@ -134,11 +135,10 @@ export default function Dashboard() {
         <ForecastChart data={forecastData?.forecast ?? []} />
       </div>
 
-      {/* Feed + Alerts */}
+      {/* Runway + Feed + Alerts */}
       <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2">
-          <TransactionFeed transactions={merged} isLive={wsConnected} />
-        </div>
+        <RunwayCard />
+        <TransactionFeed transactions={merged} isLive={wsConnected} />
         <AlertsPanel />
       </div>
 

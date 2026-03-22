@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.db.session import init_db
 from app.api.routes import transactions, reports, alerts, forecast, websocket
-
+from app.api.routes import runway
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(runway.router, prefix="/api/v1/runway", tags=["runway"])
 app.include_router(transactions.router, prefix="/api/v1/transactions", tags=["transactions"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])

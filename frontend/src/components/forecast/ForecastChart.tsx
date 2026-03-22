@@ -19,8 +19,7 @@ export default function ForecastChart({ data }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <h2 className="text-sm font-medium text-gray-700 mb-1">30-day cash flow forecast</h2>
-      <p className="text-xs text-gray-400 mb-4">Shaded band = 80% confidence interval</p>
+      
       {data.length === 0 ? (
         <p className="text-xs text-gray-400 text-center py-16">No data yet</p>
       ) : (

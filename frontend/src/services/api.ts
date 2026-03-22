@@ -26,6 +26,13 @@ export const fetchSummary = () => api.get("/reports/summary").then((r) => r.data
 export const fetchForecast = (days = 30) =>
   api.get("/forecast/", { params: { days } }).then((r) => r.data);
 
+export const fetchRunway = (marketing = 0, payroll = 0, software = 0) =>
+  api.get("/runway/", { params: {
+    scenario_marketing: marketing,
+    scenario_payroll: payroll,
+    scenario_software: software,
+  }}).then((r) => r.data);
+
 // ── Alerts ────────────────────────────────────────────────────
 export const fetchAlertEvents = () =>
   api.get("/alerts/events").then((r) => r.data);
@@ -111,4 +118,15 @@ export interface PnLRow {
 export interface WsMessage {
   type: "new_transaction";
   data: Transaction;
+}
+
+export interface RunwayData {
+  current_cash: number;
+  monthly_burn: number;
+  monthly_income: number;
+  net_monthly: number;
+  runway_months: number;
+  runway_label: string;
+  expenses_by_category: Record<string, number>;
+  scenario_applied: boolean;
 }
