@@ -46,6 +46,9 @@ export const createAlertRule = (data: AlertRuleCreate) =>
 export const markAlertRead = (id: string) =>
   api.patch(`/alerts/events/${id}/read`).then((r) => r.data);
 
+export const fetchAnomalies = () =>
+  api.get("/reports/anomalies").then((r) => r.data);
+
 // ── WebSocket ─────────────────────────────────────────────────
 export const connectWebSocket = (onMessage: (data: WsMessage) => void): WebSocket => {
   const url = `${BASE.replace("http", "ws")}/ws/live`;
@@ -130,3 +133,4 @@ export interface RunwayData {
   expenses_by_category: Record<string, number>;
   scenario_applied: boolean;
 }
+

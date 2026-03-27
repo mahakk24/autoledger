@@ -38,3 +38,25 @@ async def summary(db: AsyncSession = Depends(get_db)):
         "anomaly_count": anomalies or 0,
         "transaction_count": total_count or 0,
     }
+@router.get("/anomalies")
+async def get_anomalies(db: AsyncSession = Depends(get_db)):
+    """All anomalous transactions with reasons, sorted by severity."""
+    result = await db.execute(
+        select(Transaction)
+        .where(Transaction.is_anomaly == True)
+        .order_by(Transaction.anomaly_score.asc())  # most anomalous first
+        .limit(100)
+    )
+    txns = result.scalars().all()
+    return [
+        {
+            "id": str(t.id),
+            "date": str(t.date),
+            "merchant": t.merchant,
+            "amount": t.amount,
+            "category": t.category,
+            "anomaly_score": t.anomaly_score,
+            "reason": t.anomaly_reason or "Statistical outlier",
+        }
+        for t in txns
+    ]
