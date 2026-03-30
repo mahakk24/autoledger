@@ -49,6 +49,20 @@ export const markAlertRead = (id: string) =>
 export const fetchAnomalies = () =>
   api.get("/reports/anomalies").then((r) => r.data);
 
+export const previewCSV = (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+  return api.post("/import/preview", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }).then((r) => r.data);
+};
+
+export const confirmImport = (payload: {
+  content: string;
+  date_col: number;
+  amount_col: number;
+  merchant_col: number;
+}) => api.post("/import/confirm/", payload).then((r) => r.data);
 // ── WebSocket ─────────────────────────────────────────────────
 export const connectWebSocket = (onMessage: (data: WsMessage) => void): WebSocket => {
   const url = `${BASE.replace("http", "ws")}/ws/live`;

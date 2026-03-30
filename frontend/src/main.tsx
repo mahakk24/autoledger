@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Dashboard from "./pages/Dashboard";
 import AnomalyPage from "./pages/AnomalyPage";
 import "./index.css";
+import ImportPage from "./pages/ImportPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 10_000 } },
@@ -33,7 +34,15 @@ function App() {
                 ${page === "anomalies" ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-800"}`}
             >
               Anomalies
-            </button>
+              </button>
+              <button
+  onClick={() => setPage("import")}
+  className={`text-xs px-3 py-1.5 rounded-lg transition-colors
+    ${page === "import" ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-800"}`}
+>
+  Import CSV
+</button>
+            
           </div>
         </div>
         <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer"
@@ -41,7 +50,9 @@ function App() {
           API docs
         </a>
       </nav>
-      {page === "dashboard" ? <Dashboard /> : <AnomalyPage />}
+      {page === "dashboard" ? <Dashboard />
+  : page === "anomalies" ? <AnomalyPage />
+  : <ImportPage />}
     </div>
   );
 }

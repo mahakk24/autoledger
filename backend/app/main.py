@@ -6,7 +6,7 @@ from app.core.config import settings
 from app.db.session import init_db
 from app.api.routes import transactions, reports, alerts, forecast, websocket
 from app.api.routes import runway
-
+from app.api.routes import imports
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -34,7 +34,7 @@ app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
 app.include_router(forecast.router, prefix="/api/v1/forecast", tags=["forecast"])
 app.include_router(websocket.router, prefix="/ws", tags=["websocket"])
-
+app.include_router(imports.router, prefix="/api/v1/import", tags=["import"])
 
 @app.get("/health")
 async def health():
