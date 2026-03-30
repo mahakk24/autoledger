@@ -36,10 +36,3 @@ services:
         destination: /index.html
 ```
 
----
-
-### Step 5 — Update `backend/requirements.txt`
-
-Add this line at the bottom:
-```
-prophet==1.1.5
