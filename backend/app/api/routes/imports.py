@@ -58,8 +58,17 @@ async def confirm_import(
     date_col = payload.get("date_col", 0)
     amount_col = payload.get("amount_col", 1)
     merchant_col = payload.get("merchant_col", 2)
+    debit_col = payload.get("debit_col")
+    credit_col = payload.get("credit_col")
 
-    transactions, errors = parse_csv(content, date_col, amount_col, merchant_col)
+    debit_col = None if debit_col == -1 else debit_col
+    credit_col = None if credit_col == -1 else credit_col
+
+
+    transactions, errors = parse_csv(
+    content, date_col, amount_col, merchant_col,
+    debit_col=debit_col, credit_col=credit_col
+)
 
     if not transactions:
         raise HTTPException(

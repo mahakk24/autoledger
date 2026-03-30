@@ -62,6 +62,8 @@ export const confirmImport = (payload: {
   date_col: number;
   amount_col: number;
   merchant_col: number;
+  debit_col?: number;
+  credit_col?: number;
 }) => api.post("/import/confirm/", payload).then((r) => r.data);
 // ── WebSocket ─────────────────────────────────────────────────
 export const connectWebSocket = (onMessage: (data: WsMessage) => void): WebSocket => {

@@ -11,8 +11,9 @@ export default function ImportPage() {
   const [preview, setPreview] = useState<any>(null);
   const [fileContent, setFileContent] = useState("");
   const [mapping, setMapping] = useState({
-    date_col: 0, amount_col: 1, merchant_col: 2
-  });
+  date_col: 0, amount_col: 1, merchant_col: 2,
+  debit_col: -1, credit_col: -1
+});
   const [result, setResult] = useState<any>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -120,6 +121,8 @@ export default function ImportPage() {
             {[
               { label: "Date column", key: "date_col" },
               { label: "Amount column", key: "amount_col" },
+              { label: "Debit column (optional)", key: "debit_col" },
+              { label: "Credit column (optional)", key: "credit_col" },
               { label: "Merchant / Description column", key: "merchant_col" },
             ].map(({ label, key }) => (
               <div key={key} className="flex items-center gap-4">
