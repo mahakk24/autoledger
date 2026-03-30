@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: autoledger-api
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: '["https://autoledger-frontend.onrender.com"]'
+      - key: DEBUG
+        value: false
+
+  - type: web
+    name: autoledger-frontend
+    runtime: static
+    region: singapore
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://autoledger-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+```
+
+---
+
+### Step 5 — Update `backend/requirements.txt`
+
+Add this line at the bottom:
+```
+prophet==1.1.5
