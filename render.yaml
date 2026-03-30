@@ -27,7 +27,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://autoledger-api.onrender.com
+        value: https://autoledger-api-6a9m.onrender.com
     routes:
       - type: rewrite
         source: /*
