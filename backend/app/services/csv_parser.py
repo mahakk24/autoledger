@@ -103,6 +103,48 @@ def detect_columns(headers: list[str]) -> dict:
     }
 
 
+import re
+
+def _clean_merchant(raw: str) -> str:
+    """
+    Extract clean merchant name from messy bank descriptions.
+    Handles UPI, NEFT, IMPS, ATM formats from Indian banks.
+    """
+    raw = raw.strip()
+
+    # UPI format: UPI/DR/123456/MERCHANT/BANK/upiid
+    upi_match = re.search(r'UPI/(?:DR|CR)/\d+/([^/]+)', raw, re.IGNORECASE)
+    if upi_match:
+        return upi_match.group(1).title().strip()
+
+    # WDL TFR UPI/DR/... extract after last known pattern
+    wdl_match = re.search(r'(?:WDL|TFR|TRF)\s+(?:TFR\s+)?UPI/(?:DR|CR)/\d+/([^/]+)', raw, re.IGNORECASE)
+    if wdl_match:
+        return wdl_match.group(1).title().strip()
+
+    # NEFT/RTGS/IMPS format: NEFT-BANKNAME-ACCOUNTNAME
+    neft_match = re.search(r'(?:NEFT|RTGS|IMPS)[/-][\w]+[/-]([^/\-]+)', raw, re.IGNORECASE)
+    if neft_match:
+        return neft_match.group(1).title().strip()
+
+    # ATM withdrawal
+    if re.search(r'ATM|CASH\s+WDL', raw, re.IGNORECASE):
+        atm_match = re.search(r'ATM[/\s]+(\w+)', raw, re.IGNORECASE)
+        return f"ATM - {atm_match.group(1).title()}" if atm_match else "ATM Withdrawal"
+
+    # Remove common prefixes and return cleaner version
+    cleaned = re.sub(
+        r'^(WDL|TFR|TRF|BY|TO|FROM|TRANSFER|PAYMENT|PAID|RCV|RECEIVED)\s+',
+        '', raw, flags=re.IGNORECASE
+    )
+    # Take first meaningful part (before / or - or numbers)
+    cleaned = re.split(r'[/\|]{1}', cleaned)[0]
+    cleaned = re.sub(r'\d{6,}', '', cleaned)  # remove long numbers
+    cleaned = cleaned.strip()[:50]  # max 50 chars
+
+    return cleaned if cleaned else raw[:50]
+
+
 def parse_csv(
     content: str,
     date_col: int,
@@ -125,7 +167,7 @@ def parse_csv(
 
         try:
             date = _parse_date(row[date_col])
-            merchant = row[merchant_col].strip()
+            merchant = _clean_merchant(row[merchant_col])
 
             # Handle debit/credit columns separately
             if debit_col is not None and credit_col is not None:
