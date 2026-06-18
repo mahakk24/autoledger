@@ -22,13 +22,13 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    date = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)        # <-- added index=True
     merchant = Column(String(255), nullable=False)
     amount = Column(Float, nullable=False)
     currency = Column(String(10), default="INR")
-    category = Column(SAEnum(Category), nullable=True)
+    category = Column(SAEnum(Category), nullable=True, index=True)                       # <-- added index=True
     category_confidence = Column(Float, nullable=True)
-    is_anomaly = Column(Boolean, default=False)
+    is_anomaly = Column(Boolean, default=False, index=True)                              # <-- added index=True
     anomaly_score = Column(Float, nullable=True)
     anomaly_reason = Column(Text, nullable=True)
     description = Column(Text, nullable=True)

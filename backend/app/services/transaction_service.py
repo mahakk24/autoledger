@@ -5,8 +5,7 @@ from app.schemas.transaction import TransactionCreate
 from app.ml.pipeline.classifier import classify_transaction
 from app.ml.pipeline.anomaly import detect_anomaly
 from app.services.alert_service import evaluate_alerts
-
-
+from app.api.routes.websocket import broadcast_transaction
 async def ingest_transaction(db: AsyncSession, data: TransactionCreate) -> Transaction:
     category, confidence = classify_transaction(data.merchant, data.description or "")
     naive_date = data.date.replace(tzinfo=None)
@@ -32,6 +31,7 @@ async def ingest_transaction(db: AsyncSession, data: TransactionCreate) -> Trans
     db.add(txn)
     await db.commit()
     await db.refresh(txn)
+    await broadcast_transaction({"id": str(txn.id), "merchant": txn.merchant, "amount": txn.amount, "category": txn.category})
 
     await evaluate_alerts(db, txn)
     return txn
